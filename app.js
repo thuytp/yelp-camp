@@ -1,5 +1,6 @@
 const express = require("express");
 const mongoose = require("mongoose");
+const ejsMate = require("ejs-mate");
 const app = express();
 const path = require("path");
 const Campground = require("./models/campground");
@@ -13,6 +14,7 @@ main()
   .then(() => console.log("Connected to database"))
   .catch((error) => console.log(error));
 
+app.engine("ejs", ejsMate);
 app.set("view engine", "ejs");
 app.set("views", path.join(__dirname, "views"));
 
@@ -41,7 +43,7 @@ app.get("/campgrounds/:id", async (req, res) => {
 app.post("/campgrounds", async (req, res) => {
   const { campground } = req.body;
   await Campground.create(campground);
-  res.redirect("/");
+  res.redirect("/campgrounds");
 });
 
 app.get("/campgrounds/:id/edit", async (req, res) => {
