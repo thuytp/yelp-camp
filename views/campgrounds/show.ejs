@@ -1,13 +1,25 @@
 <% layout('layouts/boilerplate') %>
+<link rel="stylesheet" href="/stylesheets/stars.css" />
+<link rel="stylesheet" href="/stylesheets/map.css" />
 <div class="row">
   <div class="col-6">
+
     <div class="card mb-3">
-      <div>
-        <img
-          class="card-img-top"
-          src="<%= campground.imageUrl%>"
-          alt="Campground image"
-        />
+      <div id="campgroundCarousel" class="carousel slide" data-bs-ride="carousel">
+        <div class="carousel-inner">
+          <% campground.images.forEach((img, i) => { %><div class="carousel-item <%= i===0 ? 'active' : '' %> ">
+            <img src="<%= img.url %>" class="d-block w-100" alt="...">
+          </div> 
+             <% }) %>
+        </div>
+       <% if(campground.images.length > 1) { %>  <button class="carousel-control-prev" type="button" data-bs-target="#campgroundCarousel" data-bs-slide="prev">
+          <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+          <span class="visually-hidden">Previous</span>
+        </button>
+        <button class="carousel-control-next" type="button" data-bs-target="#campgroundCarousel" data-bs-slide="next">
+          <span class="carousel-control-next-icon" aria-hidden="true"></span>
+          <span class="visually-hidden">Next</span>
+        </button> <% } %>
       </div>
       <div class="card-body">
         <h5 class="card-title"><%= campground.title %></h5>
@@ -15,7 +27,7 @@
       </div>
       <ul class="list-group list-group-flush">
         <li class="list-group-item text-muted"><%= campground.location %></li>
-        <li class="list-group-item">
+        <li class="list-group-item text-muted" >
           Submited by <%= campground.author.username %>
         </li>
         <li class="list-group-item">$<%= campground.price %>/night</li>
@@ -37,7 +49,8 @@
     </div>
   </div>
   <div class="col-6">
-    <div class="mb-3">
+    <div id='map'></div>
+    <div class="mb-3 mt-3">
       <% if(currentUser) { %>
       <h2>Leave a review</h2>
       <form
@@ -46,16 +59,20 @@
         novalidate
         class="validated-form"
       >
-        <label class="form-label" for="rating">Rating</label>
-        <input
-          type="range"
-          name="review[rating]"
-          class="form-range"
-          id="rating"
-          min="1"
-          max="5"
-        />
-        <label class="form-label" for="body">Review</label>
+        <fieldset class="starability-basic mt-3" >
+          <input type="radio" id="no-rate" class="input-no-rate" name="review[rating]" value="0"  aria-label="No rating." />
+          <input type="radio" id="first-rate1" name="review[rating]" value="1"  />
+          <label for="first-rate1" title="Terrible">1 star</label>
+          <input type="radio" id="first-rate2" name="review[rating]" value="2" />
+          <label for="first-rate2" title="Not good">2 stars</label>
+          <input type="radio" id="first-rate3" name="review[rating]" value="3" />
+          <label for="first-rate3" title="Average">3 stars</label>
+          <input type="radio" id="first-rate4" name="review[rating]" value="4" />
+          <label for="first-rate4" title="Very good">4 stars</label>
+          <input type="radio" id="first-rate5" name="review[rating]" value="5" checked/>
+          <label for="first-rate5" title="Amazing">5 stars</label>
+        </fieldset>
+        <label class="form-label" for="body">Review Text</label>
         <textarea
           class="form-control"
           name="review[body]"
@@ -67,11 +84,13 @@
       <% } %> <% for(let review of campground.reviews) { %>
       <div class="card mt-3 mb-3">
         <div class="px-2 py-2">
-          <h5 class="card-title">Rating: <%= review.rating %></h5>
-          <h6 class="card-subtitle text-muted">
-            By <%= review.author.username %>
+          <h6 class="card-subtitle mb-2">
+            <%= review.author.username %>
           </h6>
-          <p class="card-text">Review: <%= review.body %></p>
+          <p class="starability-result" data-rating="<%=review.rating%>"
+            Rated: <%= review.rating %> stars
+          </p>
+          <p class="card-text"><%= review.body %></p>
           <% if(currentUser && review.author.equals(currentUser._id)) { %>
           <form
             class="d-inline"
@@ -87,3 +106,9 @@
     </div>
   </div>
 </div>
+
+<script>
+  const mapToken = "<%- process.env.MAPBOX_TOKEN %>";
+  const campground = <%- JSON.stringify(campground) %>;
+</script>
+<script src="/scripts/showMap.js"></script> 
