@@ -1,3 +1,7 @@
+if (process.env.NODE_ENV !== "production") {
+  require("dotenv").config();
+}
+
 const mongoose = require("mongoose");
 const ExpressError = require("./utils/ExpressError");
 const express = require("express");
@@ -82,14 +86,5 @@ app.use((err, req, res, next) => {
   const { statusCode = 500, message = "Something went wrong" } = err;
   res.status(statusCode).render("error", { err });
 });
-// app.get("/make-campground", (req, res) => {
-//   const camp = new Campground({
-//     title: "My backyard",
-//     description: "First campground",
-//     price: "$0",
-//   });
-//   camp.save();
-//   res.send(camp);
-// });
 
 app.listen(3000, () => console.log("Serving on port 3000"));
