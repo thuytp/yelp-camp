@@ -2,12 +2,11 @@ if (process.env.NODE_ENV !== "production") {
   require("dotenv").config();
 }
 
+const path = require("path");
 const mongoose = require("mongoose");
 const ExpressError = require("./utils/ExpressError");
 const express = require("express");
 const ejsMate = require("ejs-mate");
-const app = express();
-const path = require("path");
 const methodOverride = require("method-override");
 const session = require("express-session");
 const flash = require("connect-flash");
@@ -17,6 +16,10 @@ const userRoutes = require("./routes/user");
 const passport = require("passport");
 const LocalStrategy = require("passport-local");
 const User = require("./models/user");
+const mongoSanitize = require("express-mongo-sanitize");
+const helmet = require("helmet");
+
+const app = express();
 
 async function main() {
   await mongoose.connect("mongodb://127.0.0.1:27017/yelp-camp");
@@ -33,6 +36,8 @@ app.set("views", path.join(__dirname, "views"));
 app.use(express.urlencoded({ extended: true }));
 app.use(methodOverride("_method"));
 app.use(express.static(path.join(__dirname, "public")));
+app.use(mongoSanitize());
+app.use(helmet({ contentSecurityPolicy: false }));
 
 const sessionConfig = {
   secret: "secret",
